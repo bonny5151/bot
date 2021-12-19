@@ -155,5 +155,5 @@ pairv3abi = require( uni3abi + "IUniswapV3Pool.sol/IUniswapV3Pool.json").abi
 //abi2 = await getJSON(etherscanurl)
 //abi2 = abi2.result
 factory = new w3.eth.Contract(factoryv2abi,univ2.FACTORY_ADDRESS)
-uni2router: "0x7a250d5630b4cf539739df2c5dacb4c659f2488d"
+uni2router = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d"
 
