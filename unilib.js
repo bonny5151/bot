@@ -46,7 +46,8 @@ inputs: address1, address2
 */
 async function getreservesbyaddresses(a, a1) {
    const pairAddress = getpairaddress(a,a1);
-   return await getreservesbypair(pairAddress)
+   reserves = await getreservesbypair(pairAddress)
+   return formatreserves(reserves, a, a1);
 
 }
 
@@ -77,6 +78,14 @@ function orderarray(a1, a2) {
 }
 
 /**
+ return ordered tokens
+*/
+function ordertotokens(a1, a2)
+{
+   return orderarray(a1, a2).map(v => token(v));
+}
+
+/**
   format reserves from json rpc into map with addresses as keys and reserves as outputs,
   input reserves: map returned from json rpc in format : { reserve0: , reserve1: }
   input a1,a2, address 
@@ -84,26 +93,11 @@ function orderarray(a1, a2) {
 */
 function formatreserves(reserves, a1, a2)
 {
-  addr = orderarray(a1, a2)
-  reserves[addr[0]] = reserves.reserve0
-  reserves[addr[1]] = reserves.reserve1
+  t = ordertotokens(a1, a2)
+  reserves[t[0].address] = reserves.reserve0
+  reserves[t[1].address] = reserves.reserve1
   return reserves
 }
-
-/**
- get uniswap sdk Pair, from addresses/Tokens , and reserves json returned from uniswap pair contract
-*/
-function getPair1(a1, a2, reserves)
-{
-  addr = orderarray(a1, a2)
-  tokens = addr.map(v => token(v));
-  pair = new Pair( 
-   new TokenAmount(tokens[0], reserves.reserve0),
-   new TokenAmount(tokens[1], reserves.reserve1)
-  );
-  return pair;
-}
-
 
 /**
 update pair reserves
@@ -119,6 +113,18 @@ function updatepairreserves(pair, newreserves, newpair=0) {
   return new Pair(t0, t1);
 }
 
+/**
+ get uniswap sdk Pair, from addresses/Tokens , and reserves json returned from uniswap pair contract
+*/
+function getPair(a1, a2, reserves)
+{
+  tokens = ordertotokens(a1, a2)
+   pair = new Pair( 
+   new TokenAmount(tokens[0], reserves.reserve0),
+   new TokenAmount(tokens[1], reserves.reserve1)
+  );
+  return pair;
+}
 
 
 /**
@@ -127,19 +133,10 @@ input address1, address2, either string or Token object
 return uniswap sdk Pair object
 */
 async function getPairandreserves(t1, t2) {
-  
-  t1 = token(t1); t2 = token(t2);
-  const pairAddress = Pair.getAddress(t1, t2);
 
-  const reserves = await getreservesbypair(pairAddress)
-  
-  const tokens = orderarray(t1,t2);
+  const reserves = await getreservesbyaddresses(t1, t2)
+  return getPair(t1, t2, reserves); 
 
-  const pair = new Pair(
-    new TokenAmount(tokens[0], reserves.reserve0),
-    new TokenAmount(tokens[1], reserves.reserve1)
-  );
-  return pair;
 }
 
 
