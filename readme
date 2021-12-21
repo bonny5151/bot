@@ -13,10 +13,3 @@ console.log(out.tostring)
 
 
 
-
-tested on ubuntu, with vlc media player installed
-apt get install vlc
-npm install
-node start.js token1amount,token2minforprofit token3amount,token4minforprofit
-node start.js 3,344 4.3,7634
-
