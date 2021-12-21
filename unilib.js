@@ -36,11 +36,6 @@ token: function token(address, decimals=18, chainid=1) {
 return new Token(chainid, w3.utils.toChecksumAddress(address), decimals); 
 },
 
-toaddress: function toaddress(token) {
- if(typeof(token) == 'object') { return token.address; }
-  return token
-},
-
 
 getpairaddress: function getpairaddress(a, a1)
 {

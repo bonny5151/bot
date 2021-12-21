@@ -4,8 +4,7 @@ rpcurl = "https://eth-mainnet.alchemyapi.io/v2/VQdDXJCy1OjhNb_kV4LrCZO9O8OofMLB"
 w3 = new Web3(rpcurl)
 w3m = new Web3("https://rpc-mainnet.maticvigil.com/")
 ethers = require('ethers')
-ethers = new ethers.providers.JsonRpcProvider(rpcurl)
-e = ethers
+e = new ethers.providers.JsonRpcProvider(rpcurl)
 univ2 = require("@uniswap/sdk")
 univ3 = require("@uniswap/v3-sdk")
 fs = require("fs")
@@ -30,5 +29,5 @@ uni2router = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d"
 
 function require2(a) {  delete require.cache[require.resolve(a)]; return require(a); }
 
-unilib = require("./unilib.js")
+unilib = require("./unilib1.js")
 
