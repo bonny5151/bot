@@ -1,3 +1,19 @@
+
+from node repl
+node
+.load load.js
+.load tokens.js
+
+
+r = unilib
+out = await r.getOutputbyaddresspath([r.token(tokens.usdt, 6), tokens.weth, r.token(tokens.usdc,6)], "40000")
+console.log(out.tostring)
+
+
+
+
+
+
 tested on ubuntu, with vlc media player installed
 apt get install vlc
 npm install
