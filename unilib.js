@@ -5,7 +5,7 @@ w3 = new Web3(rpcurl)
 w3m = new Web3("https://rpc-mainnet.maticvigil.com/")
 ethers = require('ethers')
 ethers = new ethers.providers.JsonRpcProvider(rpcurl)
-
+e = ethers
 univ2 = require("@uniswap/sdk")
 univ3 = require("@uniswap/v3-sdk")
 fs = require("fs")
@@ -13,7 +13,9 @@ var getJSON = require('get-json')
 //apikey = "BSTWDFXD6QB45BJPUBVBN92EMC8M68397I"
 univ2factory = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
 
-const { ChainId, Token, WETH, Pair, TokenAmount, Fetcher } = await import("@uniswap/sdk");
+const { ChainId, Token, WETH, Pair, 
+   TokenAmount, Fetcher, Route, 
+   Trade, TradeType } = await import("@uniswap/sdk");
 
 /**
  allow using uniswap sdk with either token object or string address
@@ -35,9 +37,11 @@ getpairreserves using uniswapv2 sdk
 a1, a2 either address or token object
 */
 async function getPairfetcher(a1, a2) {
- t1 = token(a1)
- t2 = token(a2)
-return  await Fetcher.fetchPairData(t1, t2, ethers);
+ var t1 = token(a1)
+ var t2 = token(a2)
+ var p = await Fetcher.fetchPairData(t1, t2, ethers);
+ p.tostring = printPair(p)
+ return p
 }
 
 /**
@@ -46,7 +50,7 @@ inputs: address1, address2
 */
 async function getreservesbyaddresses(a, a1) {
    const pairAddress = getpairaddress(a,a1);
-   reserves = await getreservesbypair(pairAddress)
+   var reserves = await getreservesbypair(pairAddress)
    return formatreserves(reserves, a, a1);
 
 }
@@ -93,7 +97,7 @@ function ordertotokens(a1, a2)
 */
 function formatreserves(reserves, a1, a2)
 {
-  t = ordertotokens(a1, a2)
+  var t = ordertotokens(a1, a2)
   reserves[t[0].address] = reserves.reserve0
   reserves[t[1].address] = reserves.reserve1
   return reserves
@@ -105,12 +109,20 @@ input uniswap pair sdk object, newreserves object retrned from json rpc getReser
 and newpair bool for returning new Pair object instead of updating crrent one
 returns the new/updated pair with updated reserves
 */
-function updatepairreserves(pair, newreserves, newpair=0) { 
-  t = pair.tokenAmounts; 
-  t0 = new TokenAmount(t[0].token, newreserves.reserve0); 
-  t1 = new TokenAmount(t[1].token, newreserves.reserve1); 
+function updatepair(pair, newreserves, newpair=0) { 
+  var t = pair.tokenAmounts; 
+  var t0 = new TokenAmount(t[0].token, newreserves.reserve0); 
+  var t1 = new TokenAmount(t[1].token, newreserves.reserve1); 
   if(!newpair) { t[0] = t0; t[1] = t1; return pair;}
-  return new Pair(t0, t1);
+  return formatpair(new Pair(t0, t1));
+}
+
+
+async function updatepairandreserves(pair, newpair=0)
+{
+   var reserves = await getreservesbypair(pair.liquidityToken.address)
+   return updatepair(pair, reserves, newpair)
+
 }
 
 /**
@@ -118,14 +130,19 @@ function updatepairreserves(pair, newreserves, newpair=0) {
 */
 function getPair(a1, a2, reserves)
 {
-  tokens = ordertotokens(a1, a2)
-   pair = new Pair( 
+  var tokens = ordertotokens(a1, a2)
+  var pair = new Pair( 
    new TokenAmount(tokens[0], reserves.reserve0),
    new TokenAmount(tokens[1], reserves.reserve1)
   );
-  return pair;
+  return formatpair(pair);
 }
 
+function formatpair(p)
+{
+  p.tostring = printPair(p)
+  return p
+}
 
 /**
 get reserves without uniswap sdk and convert back into uniswap sdk pair object
@@ -135,9 +152,105 @@ return uniswap sdk Pair object
 async function getPairandreserves(t1, t2) {
 
   const reserves = await getreservesbyaddresses(t1, t2)
-  return getPair(t1, t2, reserves); 
+  return getPair(t1, t2, reserves)
 
 }
+
+
+async function getgasprice() {
+ var g = await w3.eth.getGasPrice()
+ return Number.parseInt(a) * 1e-9
+}
+async function getgasprice1() {
+ var g = await e.getGasPrice().toString()
+ return g
+}
+
+/**
+
+pairpath[unisdkPair, 
+tokeninput: address string or unisdkToken
+inputamount , numberstring
+decimals = number of added 0s already in inputamount
+inputamount: 21.112, decimals calculated to 3,
+inputamount: 21112, decimals: 3
+*/
+function getOutput(pairpath, tokeninput, inputamount, decimalsadded = 0)
+{
+  var t = token(tokeninput)
+  var decimalsin = inputamount.indexOf(".")
+  if(decimalsin > -1) {
+      decimalsadded = inputamount.length - decimalsin + 1
+      inputamount = inputamount.replace(".","")
+  }
+  var zeroes = t.decimals - decimalsadded
+
+  zeroes = new Array(zeroes).fill("0").join("")
+  inputamount += zeroes
+  var r = new Route(pairpath, t)
+  var t = new Trade(r, new TokenAmount(t,inputamount), TradeType.EXACT_INPUT)
+  var output = t.outputAmount
+  output.tostring = output.toExact()
+  return output
+}
+
+/**
+input ['0xusdt',
+  '0xweth',
+  '0xusdc',
+]
+output: [ [ '0xusdt', '0xweth'], ['0xweth', '0xusdc']]
+*/
+function pairaddresspath(addresspath)
+{
+  var i = 0;
+  var arr = [];
+
+  while( i++ < addresspath.length - 1 ) { arr.push([addresspath[i-1], addresspath[i]]);}
+  return arr
+}
+
+/**
+addresspath: [tokenaddres1, tokenaddress2, tokenaddressout]
+inputamount: 21.112, 
+inputamount: 21112, decimals: 3
+decimals, decimals added when no ".", ignored if "."
+returns TokenAmount, 
+*/
+async function getOutputbyaddresspath(addresspath, inputamount, decimals=0)
+{
+  var t = token(addresspath[0])
+  
+  var pairreserves = await getPairreservesbyaddresspath(addresspath)
+  
+  return getOutput(pairreserves, t, inputamount, decimals)  
+
+}
+
+
+
+
+/**
+addresspath: [tokenaddress1, tokenaddress2, tokenaddress3]
+returns [pair1/2, pair2/3]
+*/
+async function getPairreservesbyaddresspath(addresspath) {
+ var arr = pairaddresspath(addresspath)
+
+  var pairreserves = await Promise.all(
+      arr.map( async(v)=> {return  await getPairandreserves(v[0], v[1]) } )
+   )
+  return pairreserves
+
+}
+function printPair(p) {  
+  var pairaddress = p.liquidityToken.address
+  var tokens = p.tokenAmounts.map((v)=> { 
+   return {address: v.token.address, amount: v.toExact()}
+   })
+   return {address: pairaddress, token1: tokens[0], token2: tokens[1]}
+}
+
 
 
 //etherscanurl = `https://api.etherscan.io/api?module=contract&action=getabi&apikey=${apikey}&address=${address}`
