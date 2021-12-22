@@ -29,5 +29,4 @@ uni2router = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d"
 
 function require2(a) {  delete require.cache[require.resolve(a)]; return require(a); }
 
-unilib = require("./unilib1.js")
 

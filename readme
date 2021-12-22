@@ -3,11 +3,14 @@ from node repl
 node
 .load load.js
 .load tokens.js
+unilib = require("./unilib1.js")
 
-
-r = unilib
-out = await r.getOutputbyaddresspath([r.token(tokens.usdt, 6), tokens.weth, r.token(tokens.usdc,6)], "40000")
+out = await unilib.getOutputbyaddresspath([[tokens.usdt, 6], tokens.weth, [tokens.usdc,6]], "40000")
 console.log(out.tostring)
+
+out = await unilib.getOutputbyaddresspath([[tokens.usdc,6], tokens.weth, [tokens.mana, "mana"]], 1000)
+console.log(out)
+console.log(Number.parseFloat(out.tostring))
 
 
 
