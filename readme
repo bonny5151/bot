@@ -3,7 +3,7 @@ from node repl
 node
 .load load.js
 .load tokens.js
-unilib = require("./unilib.js")
+unilib = require("./unilib.js").connect()
 
 out = await unilib.getOutputbyaddresspath([[tokens.usdt, 6], tokens.weth, [tokens.usdc,6]], "40000")
 console.log(out.tostring)
@@ -12,7 +12,14 @@ out = await unilib.getOutputbyaddresspath([[tokens.usdc,6], tokens.weth, [tokens
 console.log(out)
 console.log(Number.parseFloat(out.tostring))
 
+botsettings.prompt = 1 // for testing on eth mainnet
+var inputamt = 30000;
+var minoutputamt = 29000;
+var path = [[ tokens.usdc, 6], tokens.weth, [tokens.usdt, 6]]
+var wallet = towallet(privkey)
+var result = await unilib.swaptokensaddz(inputamt,minoutputamt,path, wallet)
 
+ 
 
 
 
