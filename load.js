@@ -1,9 +1,9 @@
 Web3 = require("web3")
 ethers = require('ethers')
 prompt = require("prompt-sync")()
-rpcurl = "https://eth-mainnet.alchemyapi.io/v2/VQdDXJCy1OjhNb_kV4LrCZO9O8OofMLB"
+rpcurl = "https://mainnet.infura.io/v3/8e02f790d43741e988dabd248ec38d2c"
 rpcurl2 = "https://eth-mainnet.gateway.pokt.network/v1/lb/61ce4e77b86d760039e03a5b"
-rpcurl3 = "https://eth-mainnet.alchemyapi.io/v2/YCd-q1v4UdUOauNU1iUhJhF28Si3LqEG"
+rpcurl3 = "https://mainnet.infura.io/v3/3761bae078234c858784dece17947c86"
 //rpcp = "https://rpc.ankr.com/polygon"
 rpcp = "https://polygon-mainnet.g.alchemy.com/v2/t1_gSvWjb7JybAE0I7Z4CHWLto6SQB1t"
 
