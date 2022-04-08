@@ -1,4 +1,4 @@
-
+npm install
 from node repl
 node
 .load load.js
