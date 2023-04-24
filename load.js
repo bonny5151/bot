@@ -1,20 +1,9 @@
 Web3 = require("web3")
 ethers = require('ethers')
 prompt = require("prompt-sync")()
-rpcurl = "https://mainnet.infura.io/v3/8e02f790d43741e988dabd248ec38d2c"
-rpcurl2 = "https://eth-mainnet.gateway.pokt.network/v1/lb/61ce4e77b86d760039e03a5b"
-rpcurl3 = "https://mainnet.infura.io/v3/3761bae078234c858784dece17947c86"
-//rpcp = "https://rpc.ankr.com/polygon"
-rpcp = "https://polygon-mainnet.g.alchemy.com/v2/t1_gSvWjb7JybAE0I7Z4CHWLto6SQB1t"
+rpcurl = "https://rpc.ankr.com/eth"
+rpcp = "https://rpc.ankr.com/polygon"
 
-rpcflashbots = "https://rpc.flashbots.net"
-rpcethermine = "https://rpc.ethermine.org"
-rpcvps = "http://157.245.75.10:8545"
-rpcvps1 = "http://64.227.71.130:8545"
-rpclocal1 = "http://192.168.1.168:8545"
-rpclocal2 = "http://192.168.1.168:8547"
-rpclocal3 = "ws://192.168.1.168:8548"
-rpcarchivetrace = "https://eth-trace.gateway.pokt.network/v1/lb/61faf29d928807003ad3ff94" 
 get_e = function get_e(url){
  var e1;
  if(url.startsWith("ws")) {
@@ -27,7 +16,7 @@ get_e = function get_e(url){
 }
 networks = {
 polygon: { w3: new Web3(rpcp), e: get_e(rpcp)}, 
-eth: { w3: new Web3(rpcurl3), e: get_e(rpcurl3)}
+eth: { w3: new Web3(rpcurl), e: get_e(rpcurl)}
 
 }
 
@@ -37,8 +26,6 @@ e = networks.eth.e
 localrpc ="http://127.0.0.1:8545/"
 //elocal = get_e(localrpc)
 
-eflashbots = get_e(rpcflashbots)
-eethermine = get_e(rpcethermine)
 univ2 = require("@uniswap/sdk")
 univ3 = require("@uniswap/v3-sdk")
 //fs = require("fs")
@@ -139,22 +126,18 @@ async function getetherprice() {
   return (Number.parseFloat(g.tostring) + Number.parseFloat(g1.tostring)) * 1.003 / 2
 }
 
-(async function() {
-gasprice = await getgasprice()
-etherprice = await getetherprice()
-})();
 estimategas = function(gaslimit) { return gasprice * gaslimit * etherprice * 1e-9}
 
 
 startgasprice = function() {
   setInterval(function(){getgasprice().then((v=>gasprice=v),(b=>{console.log(b); console.log("errgasprice11");}))},3000)
 }
-startgasprice()
+//startgasprice()
 
 startetherprice = function() {
   setInterval(function() { getetherprice().then((v=>etherprice=v),(b=>console.log("erretherprice")))},30000)
 }
-startetherprice()
+//startetherprice()
 
 
 
